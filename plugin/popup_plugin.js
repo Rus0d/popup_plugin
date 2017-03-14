@@ -347,6 +347,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
         this.modelItem = modelItem;
 
+        var popupActivity = false,
+            coockiePeriod = false;
+
         /*this.id = modelItem.id;
         this.timestamp = modelItem.timestamp;
         this.html = modelItem.html;
@@ -399,14 +402,45 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     popup.parentNode.removeChild(popup);
                     css.parentNode.removeChild(css);
 
+            }.bind(this),
+            dayCallPeriod = function(  ) {
+
+                var startPeriod = this.modelItem.start_time,
+                    endPeriod = this.modelItem.end_time,
+                    now = new Date().getHours();
+
+                if( (startPeriod <= now) && (now <= endPeriod) ){
+                    popupActivity = true;
+                }
+                else {
+                    popupActivity = false;
+                }
+
+            }.bind(this),
+            cookiePeriodChecker = function(  ) {
+
+                /*var shownDay = new Date().now();*/
+
+                var shownDay = JSON.parse(localStorage.getItem("coockieTime" + this.modelItem.id)),
+                    timeDuration = this.modelItem.cookie_time * 24 * 3600 * 1000,
+                    now = new Date().now();
+
+                if( (now - timeDuration) >= shownDay ) {
+                    coockiePeriod = true;
+                } else {
+                    coockiePeriod = false;
+                }
+
             }.bind(this);
 
         DOMinsert();
+        dayCallPeriod();
 
         this.modelRefresh = function( newModelItem ) {
 
             this.modelItem = newModelItem;
             DOMrefresh();
+            dayCallPeriod();
 
         };
         this.modelDelete = function() {
