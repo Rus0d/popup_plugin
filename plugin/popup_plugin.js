@@ -33,243 +33,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
     }
 }
 
-
 (function() {
-
-/*    this.Modal = function () {
-
-        this.updateInfoTimer = 120000;
-        this.getInfoTrigger = true;
-
-        this.modals = [];
-        this.info = [];
-
-        this.currentPageInfo = [];
-        this.changedIds = [];
-    };
-
-    Modal.prototype.getLocalModals = function() {
-        this.modals = JSON.parse(localStorage.getItem("modalsArr")) || [];
-
-        this.getInfo();
-    };
-
-    Modal.prototype.getInfo = function() {
-
-        var getJson = function() {
-
-            if ( this.getInfoTrigger ) {
-
-                var xhrInfo = new XMLHttpRequest();
-                xhrInfo.open('POST', 'https://my.citrus.ua/api/modalwindows', true);
-                xhrInfo.send();
-                xhrInfo.onreadystatechange = function() {
-                    if (xhrInfo.readyState != 4) return;
-                    if (xhrInfo.status != 200) {
-                        console.log(xhrInfo.status + ': ' + xhrInfo.statusText);
-                        this.compareInfo();
-                    } else {
-                        this.info = JSON.parse(xhrInfo.responseText) || [{}];
-                        this.compareInfo();
-                    }
-                }.bind(this);
-            }
-            else {
-                return false;
-            }
-
-        }.bind(this);
-
-        getJson();
-
-        setInterval(getJson , this.updateInfoTimer);
-
-    };
-
-    Modal.prototype.compareInfo = function() {
-
-        this.info.forEach(function(itemInfo) {
-
-            this.currentPageInfo = [];
-
-            for (var i = 0, len = itemInfo.patterns.length; i < len; i++){
-
-                var expr = new RegExp(itemInfo.patterns[i]);
-
-                if( expr.test(window.location.href) ) {
-                    this.currentPageInfo.push(itemInfo);
-                }
-
-            }
-
-        }.bind(this));
-
-        console.log('this.currentPageInfo = ' + this.currentPageInfo);
-
-        this.compareTimestamp();
-    };
-
-    Modal.prototype.compareTimestamp = function() {
-
-        this.changedIds = [];
-
-        if( this.modals.length === 0 ) {
-
-            this.changedIds = this.currentPageInfo.map(function(itemInfo) {
-
-                return itemInfo.id;
-
-            }.bind(this));
-
-        }
-        else {
-
-            this.currentPageInfo.forEach(function(itemInfo,i) {
-
-                this.modals.forEach(function(itemModals,j) {
-
-                    if( (itemInfo.id === itemModals.id) && (itemInfo.timestamp !=  itemModals.timestamp) ) {
-
-                        this.changedIds.push( itemInfo.id );
-
-                    }
-
-                }.bind(this));
-
-            }.bind(this));
-
-            var currentPageInfoId = this.currentPageInfo.map(function(itemInfo) {
-
-                return itemInfo.id;
-
-            }.bind(this));
-
-            var currentModalsId = this.modals.map(function(itemModals) {
-
-                return itemModals.id;
-
-            }.bind(this));
-
-            console.log('currentModalsId = ' +  JSON.stringify(currentModalsId));
-
-            var arr4Concat = currentPageInfoId.filter(function(item) {
-
-                return !!(currentModalsId.indexOf(item) === -1);
-
-            }.bind(this));
-
-            this.changedIds = this.changedIds.concat(arr4Concat);
-        }
-
-        this.getModel();
-    };
-
-    Modal.prototype.getModel = function() {
-
-        if( this.changedIds.length ) {
-
-            var xhrModals = new XMLHttpRequest();
-            xhrModals.open('POST', 'https://my.citrus.ua/api/modalwindows/' + this.changedIds.join(','), true);
-            xhrModals.send();
-            xhrModals.onreadystatechange = function() {
-                if (xhrModals.readyState != 4) return;
-                if (xhrModals.status != 200) {
-                    console.log(xhrModals.status + ': ' + xhrModals.statusText);
-                }
-                else {
-
-                    var newModals = JSON.parse(xhrModals.responseText),
-                        replication = [];
-
-                    console.log(newModals);
-
-                    if( this.modals.length === 0 ) {
-
-                        this.modals = newModals;
-
-                    }
-                    else {
-
-                        this.modals.forEach(function (itemModals, i) {
-
-                            newModals.forEach(function (itemModalsNew) {
-
-                                if (itemModalsNew.id === itemModals.id) {
-                                    this.modals[i] = itemModalsNew;
-                                    replication.push(itemModalsNew.id);
-                                }
-                                else if( replication.indexOf(itemModalsNew.id) === -1 ) {
-                                    this.modals.push(itemModalsNew);
-                                    replication.push(itemModalsNew.id);
-                                }
-
-                            }.bind(this));
-
-                        }.bind(this));
-
-                    }
-                    this.cleanModals();
-                }
-            }.bind(this);
-
-        }
-        else {
-            this.cleanModals();
-        }
-
-    };
-
-    Modal.prototype.cleanModals = function() {
-
-        var newModal = [],
-            existIds = [];
-
-        this.info.forEach(function(itemInfo) {
-
-            this.modals.forEach(function(itemModals) {
-
-                if( (itemModals.id === itemInfo.id) && (existIds.indexOf(itemInfo.id) === -1) ) {
-                    newModal.push(itemModals);
-                    existIds.push(itemModals.id);
-                }
-
-            }.bind(this));
-
-        }.bind(this));
-
-        this.modals = newModal;
-
-        console.log(this.modals);
-
-        this.setLocalModals();
-    };
-
-    Modal.prototype.setLocalModals = function() {
-
-        var serialModals = JSON.stringify(this.modals);
-
-        localStorage.setItem("modalsArr", serialModals);
-
-        console.log('---------------------------------------------------------------------------------------------------');
-
-    };
-
-    Modal.prototype.stopSynch = function() {
-
-        this.getInfoTrigger = false;
-
-    };
-
-    Modal.prototype.startSynch = function(timeInterval) {
-
-        this.getInfoTrigger = true;
-        this.updateInfoTimer = timeInterval;
-
-        this.getLocalModals();
-
-    };*/
-
-    modalsArray = [];
 
     this.Model = function () {
 
@@ -279,8 +43,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         this.changedIds = [];
         this.deletedIds = [];
 
-        var updateInfoTimer = 120000,
-            getInfoTrigger = true;
+        var updateInfoTimer = 1000,
+            getInfoTrigger = true,
+            actualModel = [],
+            modalsArray = [];
 
         var getLocalModals = function() {
                 this.modals = JSON.parse(localStorage.getItem("modalsArr")) || [];
@@ -398,13 +164,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         return (currentPageInfoId.indexOf(item) === -1);
 
                     }.bind(this));
-
-                    console.log('this.deletedIds = ' + this.deletedIds)
-
                 }
-
-                console.log('currentModalsId = ' +  JSON.stringify(currentModalsId));
-
                 getModel();
             }.bind(this),
 
@@ -491,44 +251,33 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 localStorage.setItem("modalsArr", serialModals);
 
+                setActualModel();
+
+            }.bind(this),
+
+            setActualModel = function() {
+
+                actualModel = [];
+
+                this.modals.forEach(function( modelItem ) {
+
+                    this.currentPageInfo.forEach(function( currentPageInfo ) {
+
+                        if( currentPageInfo.id === modelItem.id ) {
+
+                            actualModel.push( modelItem );
+
+                        }
+
+                    }.bind(this));
+
+                }.bind(this));
+
                 initModals();
 
             }.bind(this),
 
             initModals = function() {
-
-                this.modals.forEach(function( modelItem, number ) {
-
-                    for (var i = 0, len = this.currentPageInfo.length; i < len; i++){
-
-                        if( this.currentPageInfo[i].id === modelItem.id ) {
-
-                            if( !modalsArray[number] ) {
-                                modalsArray[number] = new Modal( modelItem );  /* Инициализируем инстансы попапов */
-                                console.log('modelItem create');
-                                console.log(modelItem);
-                            }
-
-                            else if( modalsArray[number] && this.changedIds.length ) {
-
-                                for (var j = 0, len2 = this.changedIds.length; j < len2; j++){
-
-
-                                    if( modelItem.id === this.changedIds[j] ) {
-                                        modalsArray[number].modelRefresh( modelItem );  /* Обновляем попап */
-                                        console.log('modelItem refresh');
-                                        console.log(modelItem);
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }.bind(this));
 
                 if( this.deletedIds.length ) {
 
@@ -537,9 +286,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         for (var j = 0; j < this.deletedIds.length; j++){
 
                             if( modalsArray[i].modelItem.id === this.deletedIds[j] ) {
-                                modalsArray[i].modelDelete();              /* Удаляем попап из дома */
+                                modalsArray[i].modelDelete();              /!* Удаляем попап из дома *!/
                                 modalsArray[i] = {};
-                                modalsArray.splice( i, 1 );                /* Удаляем объект попапа */
+                                modalsArray.splice( i, 1 );                /!* Удаляем объект попапа *!/
                             }
 
                         }
@@ -547,6 +296,30 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     }
 
                 }
+
+                actualModel.forEach(function( actItem, number ) {
+
+                    if( !modalsArray[number] ) {
+                        modalsArray[number] = new Modal(actItem);
+                    }
+
+                }.bind(this));
+
+                actualModel.forEach(function( actItem ) {
+
+                    this.changedIds.forEach(function (changedId) {
+
+                        modalsArray.forEach(function (arrItem) {
+
+                            if( (actItem.id === changedId) && (changedId === arrItem.modelItem.id) ) {
+                                arrItem.modelRefresh(actItem);
+                            }
+
+                        }.bind(this));
+
+                    }.bind(this));
+
+                }.bind(this));
 
                 console.log('---------------------------------------------------------------------------------------------------');
 
@@ -567,9 +340,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
         };
     };
-
-
-
 
 
 
@@ -602,7 +372,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     bodyEl.insertAdjacentHTML("beforeEnd", "<div id='popupId-" + modelItem.id + "' class='popup-plugin hide'>" + this.modelItem.html + "</div>");
 
                     var headEl = document.querySelector('head');
-                    headEl.insertAdjacentHTML("beforeEnd", "<link href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
                 }.bind(this);
 
@@ -611,18 +381,23 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             }.bind(this),
             DOMrefresh = function(  ) {
 
-                document.querySelector("#popupId-" + modelItem.id).innerHTML = this.modelItem.html;
+                var popup = document.querySelector("#popupId-" + modelItem.id),
+                    css = document.querySelector("#popupIdCss-" + modelItem.id),
+                    headEl = document.querySelector('head');
 
-                console.log('refreshed');
+                popup.innerHTML = this.modelItem.html;
+
+                css.parentNode.removeChild(css);
+                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
             }.bind(this),
             DOMdelete = function(  ) {
 
-                console.log('deleting');
+                    var popup = document.querySelector("#popupId-" + modelItem.id),
+                        css = document.querySelector("#popupIdCss-" + modelItem.id);
 
-                var popup = document.querySelector("#popupId-" + modelItem.id);
-
-                popup.parentNode.removeChild(popup);
+                    popup.parentNode.removeChild(popup);
+                    css.parentNode.removeChild(css);
 
             }.bind(this);
 
@@ -631,7 +406,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         this.modelRefresh = function( newModelItem ) {
 
             this.modelItem = newModelItem;
-
             DOMrefresh();
 
         };
@@ -644,10 +418,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
     };
 
 
-
-
-
 }());
 
 var model = new Model();
-model.startSynch(10000);
+model.startSynch(5000);
