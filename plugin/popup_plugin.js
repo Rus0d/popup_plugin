@@ -367,38 +367,43 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
         var DOMinsert = function() {
 
-                var insertFunc = function() {
+                var bodyEl = document.querySelector('body');
 
-                    var bodyEl = document.querySelector('body');
-                    bodyEl.insertAdjacentHTML("beforeEnd", "<div id='popupId-" + this.modelItem.id + "' class='popup-plugin popup-plugin-hide'>" + this.modelItem.html + "</div>");
+                bodyEl.insertAdjacentHTML("beforeEnd", "<div id='popupId-" + this.modelItem.id + "' class='popup-plugin popup-plugin-hide'>" + this.modelItem.html + "</div>");
 
-                    var headEl = document.querySelector('head');
-                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                var headEl = document.querySelector('head');
 
-                }.bind(this);
+                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=https://my.citrus.ua/" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
-                document.addEventListener("DOMContentLoaded", insertFunc());
+                bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
 
             }.bind(this),
             DOMrefresh = function(  ) {
 
                 var popup = document.getElementById("popupId-" + this.modelItem.id),
                     css = document.getElementById("popupIdCss-" + this.modelItem.id),
-                    headEl = document.querySelector('head');
+                    js = document.getElementById("popupIdJs-" + this.modelItem.id),
+                    headEl = document.querySelector('head'),
+                    bodyEl = document.querySelector('body');
 
                 popup.innerHTML = this.modelItem.html;
 
                 css.parentNode.removeChild(css);
                 headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
+                js.parentNode.removeChild(js);
+                bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
+
             }.bind(this),
             DOMdelete = function(  ) {
 
                     var popup = document.getElementById("popupId-" + this.modelItem.id),
-                        css = document.getElementById("popupIdCss-" + this.modelItem.id);
+                        css = document.getElementById("popupIdCss-" + this.modelItem.id),
+                        js = document.getElementById("popupIdJs-" + this.modelItem.id);
 
                     popup.parentNode.removeChild(popup);
                     css.parentNode.removeChild(css);
+                    js.parentNode.removeChild(js);
 
             }.bind(this),
 
@@ -518,18 +523,49 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 if( this.modelItem.on_scroll ) {
 
-                    var scrollElements = document.querySelectorAll(this.modelItem.on_scroll);
+                    var scrollElements = document.querySelectorAll(this.modelItem.on_scroll),
+                        direction = '',
+                        opened = false,
+                        oldScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
 
+                    window.onscroll = function() {
 
+                        var scrolled = window.pageYOffset || document.documentElement.scrollTop,
+                            height = document.documentElement.clientHeight;
 
-                    scrollElements.forEach(function(item){
+                        if ( (scrolled - oldScrollPosition) >= 0 ) {
+                            direction = 'DOWN';
+                        }
+                        else {
+                            direction = 'UP';
+                        }
 
-                        /*item.onclick = function(e) {
-                            e.stopPropagation();
-                            manualShow();
-                        };*/
+                        oldScrollPosition = scrolled;
 
-                    });
+                        scrollElements.forEach( function( item ){
+
+                            if ( (direction === 'DOWN') && ( item.offsetTop <= (scrolled + height) ) && ( (scrolled + height) <= (item.offsetTop + item.offsetHeight) ) && ( !opened ) ) {
+                                console.log('1');
+                                console.log(opened);
+                                manualShow();
+                                opened = true;
+                            }
+                            else if ( (direction === 'UP') && ( (item.offsetHeight + item.offsetTop) >= scrolled ) && ( scrolled >= item.offsetTop ) && ( !opened ) ) {
+                                console.log('2');
+                                console.log(opened);
+                                manualShow();
+                                opened = true;
+                            }
+                            else if ( (direction === 'DOWN') && ( (scrolled) > (item.offsetTop + item.offsetHeight) ) && ( opened ) ) {
+                                opened = false;
+                            }
+                            else if ( (direction === 'UP') && ( (scrolled + height) < item.offsetTop ) && ( opened ) ) {
+                                opened = false;
+                            }
+
+                        });
+
+                    };
 
                 }
 
@@ -537,16 +573,27 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             onOutOpen = function(  ) {
 
 
+
             }.bind(this);
 
-        DOMinsert();
-        dayCallPeriodChecker();
-        cookiePeriodChecker();
-        delayedShow();
-        onClickClose();
-        onClickOpen();
-        onScrollOpen();
-        onOutOpen();
+        (function () {
+
+            var callOnLoad = function() {
+
+                DOMinsert();
+                dayCallPeriodChecker();
+                cookiePeriodChecker();
+                delayedShow();
+                onClickClose();
+                onClickOpen();
+                onScrollOpen();
+                onOutOpen();
+
+            };
+
+            document.addEventListener("DOMContentLoaded", callOnLoad());
+
+        }());
 
         this.modelRefresh = function( newModelItem ) {
 
