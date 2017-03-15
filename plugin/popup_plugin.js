@@ -348,7 +348,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         this.modelItem = modelItem;
 
         var popupActivity = false,
-            coockiePeriod = false;
+            cookiePeriod = false;
 
         /*this.id = modelItem.id;
         this.timestamp = modelItem.timestamp;
@@ -358,8 +358,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         this.on_scroll = modelItem.on_scroll;
         this.start_time = modelItem.start_time;
         this.end_time = modelItem.end_time;
-        this.start_period = modelItem.start_period;
-        this.end_period = modelItem.end_period;
         this.delay = modelItem.delay;
         this.cookie_time = modelItem.cookie_time;
         this.event_action = modelItem.event_action;
@@ -372,10 +370,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 var insertFunc = function() {
 
                     var bodyEl = document.querySelector('body');
-                    bodyEl.insertAdjacentHTML("beforeEnd", "<div id='popupId-" + modelItem.id + "' class='popup-plugin hide'>" + this.modelItem.html + "</div>");
+                    bodyEl.insertAdjacentHTML("beforeEnd", "<div id='popupId-" + this.modelItem.id + "' class='popup-plugin popup-plugin-hide'>" + this.modelItem.html + "</div>");
 
                     var headEl = document.querySelector('head');
-                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
                 }.bind(this);
 
@@ -384,26 +382,27 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             }.bind(this),
             DOMrefresh = function(  ) {
 
-                var popup = document.querySelector("#popupId-" + modelItem.id),
-                    css = document.querySelector("#popupIdCss-" + modelItem.id),
+                var popup = document.getElementById("popupId-" + this.modelItem.id),
+                    css = document.getElementById("popupIdCss-" + this.modelItem.id),
                     headEl = document.querySelector('head');
 
                 popup.innerHTML = this.modelItem.html;
 
                 css.parentNode.removeChild(css);
-                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
             }.bind(this),
             DOMdelete = function(  ) {
 
-                    var popup = document.querySelector("#popupId-" + modelItem.id),
-                        css = document.querySelector("#popupIdCss-" + modelItem.id);
+                    var popup = document.getElementById("popupId-" + this.modelItem.id),
+                        css = document.getElementById("popupIdCss-" + this.modelItem.id);
 
                     popup.parentNode.removeChild(popup);
                     css.parentNode.removeChild(css);
 
             }.bind(this),
-            dayCallPeriod = function(  ) {
+
+            dayCallPeriodChecker = function(  ) {
 
                 var startPeriod = this.modelItem.start_time,
                     endPeriod = this.modelItem.end_time,
@@ -419,28 +418,142 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             }.bind(this),
             cookiePeriodChecker = function(  ) {
 
-                /*var shownDay = new Date().now();*/
-
-                var shownDay = JSON.parse(localStorage.getItem("coockieTime" + this.modelItem.id)),
+                var shownDay = JSON.parse(localStorage.getItem("coockieTime" + this.modelItem.id)) || 0,
                     timeDuration = this.modelItem.cookie_time * 24 * 3600 * 1000,
-                    now = new Date().now();
+                    now = new Date();
 
-                if( (now - timeDuration) >= shownDay ) {
-                    coockiePeriod = true;
+                if ( (now.getTime() - timeDuration) >= shownDay ) {
+                    cookiePeriod = true;
                 } else {
-                    coockiePeriod = false;
+                    cookiePeriod = false;
                 }
+
+            }.bind(this),
+            cookiePeriodSetter = function(  ) {
+
+                var now = new Date(),
+                    shownDay = JSON.stringify( now.getTime() );
+
+                localStorage.setItem("coockieTime" + this.modelItem.id, shownDay);
+
+            }.bind(this),
+
+            robotoShow = function(  ) {
+
+                dayCallPeriodChecker();
+                cookiePeriodChecker();
+
+                cookiePeriodSetter();
+
+                if ( popupActivity && cookiePeriod ) {
+                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+
+                    DOMelement.classList.remove("popup-plugin-hide");
+                }
+
+            }.bind(this),
+            manualShow = function(  ) {
+
+                cookiePeriodSetter();
+
+                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+
+                    DOMelement.classList.remove("popup-plugin-hide");
+
+            }.bind(this),
+            hide = function(  ) {
+
+                var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+
+                DOMelement.classList.add("popup-plugin-hide");
+
+
+            }.bind(this),
+
+            delayedShow = function(  ) {
+
+                setTimeout(robotoShow , this.modelItem.delay * 1000);
+
+            }.bind(this),
+            onClickClose = function(  ) {
+
+                var popup = document.getElementById('popupId-' + this.modelItem.id),
+                    closeBtn = document.querySelectorAll('#popupId-' + this.modelItem.id + ' .popup-close');
+
+                popup.onclick = function(e) {
+                    e.stopPropagation();
+
+                    if ( e.target === popup ) {
+                        hide();
+                    }
+
+                };
+
+                if ( closeBtn ) {
+
+                    closeBtn.onclick = function() {
+                        hide();
+                    };
+
+                }
+
+            }.bind(this),
+            onClickOpen = function(  ) {
+
+                if( this.modelItem.on_click ) {
+
+                    var openBtn = document.querySelectorAll(this.modelItem.on_click);
+
+                    openBtn.forEach(function(item){
+                        item.onclick = function(e) {
+                            e.stopPropagation();
+                            manualShow();
+                        };
+                    });
+
+                }
+
+            }.bind(this),
+            onScrollOpen = function(  ) {
+
+                if( this.modelItem.on_scroll ) {
+
+                    var scrollElements = document.querySelectorAll(this.modelItem.on_scroll);
+
+
+
+                    scrollElements.forEach(function(item){
+
+                        /*item.onclick = function(e) {
+                            e.stopPropagation();
+                            manualShow();
+                        };*/
+
+                    });
+
+                }
+
+            }.bind(this),
+            onOutOpen = function(  ) {
+
 
             }.bind(this);
 
         DOMinsert();
-        dayCallPeriod();
+        dayCallPeriodChecker();
+        cookiePeriodChecker();
+        delayedShow();
+        onClickClose();
+        onClickOpen();
+        onScrollOpen();
+        onOutOpen();
 
         this.modelRefresh = function( newModelItem ) {
 
             this.modelItem = newModelItem;
             DOMrefresh();
-            dayCallPeriod();
+            dayCallPeriodChecker();
+            cookiePeriodChecker();
 
         };
         this.modelDelete = function() {
