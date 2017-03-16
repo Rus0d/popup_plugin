@@ -35,7 +35,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
 (function() {
 
-    this.Model = function () {
+    Model = function () {
 
         this.modals = [];
         this.info = [];
@@ -321,8 +321,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 }.bind(this));
 
-                console.log('---------------------------------------------------------------------------------------------------');
-
             }.bind(this);
 
         this.stopSynch = function() {
@@ -341,29 +339,13 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         };
     };
 
-
-
     Modal = function (modelItem) {
 
         this.modelItem = modelItem;
 
         var popupActivity = false,
-            cookiePeriod = false;
-
-        /*this.id = modelItem.id;
-        this.timestamp = modelItem.timestamp;
-        this.html = modelItem.html;
-        this.css = modelItem.css;
-        this.on_click = modelItem.on_click;
-        this.on_scroll = modelItem.on_scroll;
-        this.start_time = modelItem.start_time;
-        this.end_time = modelItem.end_time;
-        this.delay = modelItem.delay;
-        this.cookie_time = modelItem.cookie_time;
-        this.event_action = modelItem.event_action;
-        this.event_category = modelItem.event_category;
-        this.event_label = modelItem.event_label;
-        this.on_out_of_window = modelItem.on_out_of_window;*/
+            cookiePeriod = false,
+            onOutEvent = false;
 
         var DOMinsert = function() {
 
@@ -378,7 +360,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
 
             }.bind(this),
-            DOMrefresh = function(  ) {
+            DOMrefresh = function() {
 
                 var popup = document.getElementById("popupId-" + this.modelItem.id),
                     css = document.getElementById("popupIdCss-" + this.modelItem.id),
@@ -395,7 +377,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
 
             }.bind(this),
-            DOMdelete = function(  ) {
+            DOMdelete = function() {
 
                     var popup = document.getElementById("popupId-" + this.modelItem.id),
                         css = document.getElementById("popupIdCss-" + this.modelItem.id),
@@ -407,7 +389,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
             }.bind(this),
 
-            dayCallPeriodChecker = function(  ) {
+            dayCallPeriodChecker = function() {
 
                 var startPeriod = this.modelItem.start_time,
                     endPeriod = this.modelItem.end_time,
@@ -421,7 +403,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            cookiePeriodChecker = function(  ) {
+            cookiePeriodChecker = function() {
 
                 var shownDay = JSON.parse(localStorage.getItem("coockieTime" + this.modelItem.id)) || 0,
                     timeDuration = this.modelItem.cookie_time * 24 * 3600 * 1000,
@@ -434,7 +416,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            cookiePeriodSetter = function(  ) {
+            cookiePeriodSetter = function() {
 
                 var now = new Date(),
                     shownDay = JSON.stringify( now.getTime() );
@@ -442,8 +424,29 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 localStorage.setItem("coockieTime" + this.modelItem.id, shownDay);
 
             }.bind(this),
+            outChecker = function() {
 
-            robotoShow = function(  ) {
+                var onEventState = JSON.parse(localStorage.getItem("onEventState" + this.modelItem.id)) || 0,
+                    timeDuration = 86400000,
+                    now = new Date();
+
+                if( (now.getTime() - timeDuration) >= onEventState ) {
+                    onOutEvent = true;
+                } else {
+                    onOutEvent = false;
+                }
+
+            }.bind(this),
+            outSetter = function() {
+
+                var now = new Date(),
+                    onEventState = JSON.stringify( now.getTime() );
+
+                localStorage.setItem("onEventState" + this.modelItem.id, onEventState);
+
+            }.bind(this),
+
+            robotoShow = function() {
 
                 dayCallPeriodChecker();
                 cookiePeriodChecker();
@@ -457,7 +460,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            manualShow = function(  ) {
+            manualShow = function() {
 
                 cookiePeriodSetter();
 
@@ -466,7 +469,25 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     DOMelement.classList.remove("popup-plugin-hide");
 
             }.bind(this),
-            hide = function(  ) {
+            outShow = function() {
+
+                dayCallPeriodChecker();
+                cookiePeriodChecker();
+                outChecker();
+
+                cookiePeriodSetter();
+                outSetter();
+
+
+
+                if ( popupActivity && cookiePeriod && onOutEvent ) {
+                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+
+                    DOMelement.classList.remove("popup-plugin-hide");
+                }
+
+            }.bind(this),
+            hide = function() {
 
                 var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
@@ -475,12 +496,12 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
             }.bind(this),
 
-            delayedShow = function(  ) {
+            delayedShow = function() {
 
                 setTimeout(robotoShow , this.modelItem.delay * 1000);
 
             }.bind(this),
-            onClickClose = function(  ) {
+            onClickClose = function() {
 
                 var popup = document.getElementById('popupId-' + this.modelItem.id),
                     closeBtn = document.querySelectorAll('#popupId-' + this.modelItem.id + ' .popup-close');
@@ -503,7 +524,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            onClickOpen = function(  ) {
+            onClickOpen = function() {
 
                 if( this.modelItem.on_click ) {
 
@@ -519,7 +540,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            onScrollOpen = function(  ) {
+            onScrollOpen = function() {
 
                 if( this.modelItem.on_scroll ) {
 
@@ -545,14 +566,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         scrollElements.forEach( function( item ){
 
                             if ( (direction === 'DOWN') && ( item.offsetTop <= (scrolled + height) ) && ( (scrolled + height) <= (item.offsetTop + item.offsetHeight) ) && ( !opened ) ) {
-                                console.log('1');
-                                console.log(opened);
                                 manualShow();
                                 opened = true;
                             }
                             else if ( (direction === 'UP') && ( (item.offsetHeight + item.offsetTop) >= scrolled ) && ( scrolled >= item.offsetTop ) && ( !opened ) ) {
-                                console.log('2');
-                                console.log(opened);
                                 manualShow();
                                 opened = true;
                             }
@@ -570,9 +587,20 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),
-            onOutOpen = function(  ) {
+            onOutOpen = function() {
 
+                if ( this.modelItem.on_out_of_window ) {
 
+                    var html = document.querySelector('html');
+
+                    html.onmouseleave = function(e) {
+                        e.stopPropagation();
+
+                        if (e.clientY < 0) {
+                            outShow();
+                        }
+                    };
+                }
 
             }.bind(this);
 
@@ -611,8 +639,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
     };
 
+    var model = new Model();
+    model.startSynch(5000);
 
 }());
-
-var model = new Model();
-model.startSynch(5000);
