@@ -37,22 +37,24 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
     Model = function () {
 
-        this.modals = [];
-        this.info = [];
-        this.currentPageInfo = [];
-        this.changedIds = [];
-        this.deletedIds = [];
+        this.modals = [];                                                                                               /* Массив оюъектов с модалками */
+        this.info = [];                                                                                                 /* Массив оюъектов разведчиков */
+        this.currentPageInfo = [];                                                                                      /* Отфильтрованный массив оюъектов разведчиков для текущего URL */
+        this.changedIds = [];                                                                                           /* ID модалок которые модифицировались */
+        this.deletedIds = [];                                                                                           /* ID модалок которые были отключены */
 
-        var updateInfoTimer = 1000,
-            getInfoTrigger = true,
-            actualModel = [],
-            modalsArray = [];
+        var updateInfoTimer = 300000,                                                                                   /* Интервал обновления по умолчанию */
+            getInfoTrigger = true,                                                                                      /* Тригер обновления */
+            actualModel = [],                                                                                           /* Массив фильтрованных модалок для текущего URL */
+            modalsArray = [];                                                                                           /* Массив истансов конструктора Model */
 
         var getLocalModals = function() {
+
                 this.modals = JSON.parse(localStorage.getItem("modalsArr")) || [];
 
                 getInfo();
-            }.bind(this),
+
+            }.bind(this),                                                               /* Достаем модалки из локального хранилища */
 
             getInfo = function() {
 
@@ -84,7 +86,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 setInterval(getJson , updateInfoTimer);
 
-            }.bind(this),
+            }.bind(this),                                                                      /* Запрашиваем массив разведчиков */
 
             compareInfo = function() {
 
@@ -107,7 +109,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }.bind(this));
 
                 compareTimestamp();
-            }.bind(this),
+            }.bind(this),                                                                  /* Фильтруем разведчиков по URL */
 
             compareTimestamp = function() {
 
@@ -166,7 +168,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     }.bind(this));
                 }
                 getModel();
-            }.bind(this),
+            }.bind(this),                                                             /* Формируем массив с ID модалок которые изменялись */
 
             getModel = function() {
 
@@ -220,7 +222,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     cleanModals();
                 }
 
-            }.bind(this),
+            }.bind(this),                                                                     /* Запрашиваем модалки */
 
             cleanModals = function() {
 
@@ -243,7 +245,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 this.modals = newModal;
 
                 setLocalModals();
-            }.bind(this),
+            }.bind(this),                                                                  /* Удаляем дубликаты */
 
             setLocalModals = function() {
 
@@ -253,7 +255,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 setActualModel();
 
-            }.bind(this),
+            }.bind(this),                                                               /* Сохраняем массив с модалеами в локальное хранилище */
 
             setActualModel = function() {
 
@@ -275,7 +277,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 initModals();
 
-            }.bind(this),
+            }.bind(this),                                                               /* Фильтруем массив с модалками по URL */
 
             initModals = function() {
 
@@ -286,9 +288,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         for (var j = 0; j < this.deletedIds.length; j++){
 
                             if( modalsArray[i].modelItem.id === this.deletedIds[j] ) {
-                                modalsArray[i].modelDelete();              /!* Удаляем попап из дома *!/
+                                modalsArray[i].modelDelete();                                                           /* Удаляем попап из дома */
                                 modalsArray[i] = {};
-                                modalsArray.splice( i, 1 );                /!* Удаляем объект попапа *!/
+                                modalsArray.splice( i, 1 );                                                             /* Удаляем объект попапа */
                             }
 
                         }
@@ -321,25 +323,25 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 }.bind(this));
 
-            }.bind(this);
+            }.bind(this);                                                                   /* Создаем инстансы модалок */
 
         this.stopSynch = function() {
 
             getInfoTrigger = false;
 
-        };
+        };                                                                              /* Метод для остановки авто синхронизации */
 
         this.startSynch = function(timeInterval) {
 
             getInfoTrigger = true;
-            updateInfoTimer = timeInterval;
+            updateInfoTimer = timeInterval || updateInfoTimer;
 
             getLocalModals();
 
-        };
+        };                                                                 /* Старт авто синхронизации */
     };
 
-    Modal = function (modelItem) {
+    Modal = function (modelItem) {                                                                                      /* Конструктор модалок */
 
         this.modelItem = modelItem;
 
@@ -355,9 +357,13 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 var headEl = document.querySelector('head');
 
-                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=https://my.citrus.ua/" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=https://my.citrus.ua" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
 
-                bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
+                var script = document.createElement('script');
+                script.src = "https://my.citrus.ua" + this.modelItem.js;
+                script.async = false;
+                script.id = "popupIdJs-" + this.modelItem.id;
+                bodyEl.appendChild(script);
 
             }.bind(this),
             DOMrefresh = function() {
@@ -366,15 +372,19 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     css = document.getElementById("popupIdCss-" + this.modelItem.id),
                     js = document.getElementById("popupIdJs-" + this.modelItem.id),
                     headEl = document.querySelector('head'),
-                    bodyEl = document.querySelector('body');
+                    bodyEl = document.querySelector('body'),
+                    script = document.createElement('script');
 
                 popup.innerHTML = this.modelItem.html;
 
                 css.parentNode.removeChild(css);
-                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href='https://my.citrus.ua" + this.modelItem.css + "' rel='stylesheet' type='text/css'>");
 
                 js.parentNode.removeChild(js);
-                bodyEl.insertAdjacentHTML("beforeEnd", "<script id='popupIdJs-" + this.modelItem.id + "' src='https://my.citrus.ua/" + this.modelItem.js + "' type='text/javascript'>");
+                script.src = "https://my.citrus.ua" + this.modelItem.js;
+                script.async = true;
+                script.id = "popupIdJs-" + this.modelItem.id;
+                bodyEl.appendChild(script);
 
             }.bind(this),
             DOMdelete = function() {
