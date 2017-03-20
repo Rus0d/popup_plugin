@@ -11,8 +11,7 @@
     left: 0;
     transition: 0.3s ease;
     display: block;
-    opacity: .5;
     z-index: 1000;
 
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.5);
 }

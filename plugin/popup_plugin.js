@@ -514,7 +514,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             onClickClose = function() {
 
                 var popup = document.getElementById('popupId-' + this.modelItem.id),
-                    closeBtn = document.querySelectorAll('#popupId-' + this.modelItem.id + ' .popup-close');
+                    closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
 
                 popup.onclick = function(e) {
                     e.stopPropagation();
