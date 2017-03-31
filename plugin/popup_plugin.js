@@ -513,25 +513,17 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             }.bind(this),
             onClickClose = function() {
 
-                var popup = document.getElementById('popupId-' + this.modelItem.id),
-                    closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
+                var popup = document.getElementById('popupId-' + this.modelItem.id);
 
                 popup.onclick = function(e) {
+                    var closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
                     e.stopPropagation();
 
-                    if ( e.target === popup ) {
+                    if ( e.target === popup || e.target === closeBtn ) {
                         hide();
                     }
 
-                };
-
-                if ( closeBtn ) {
-
-                    closeBtn.onclick = function() {
-                        hide();
-                    };
-
-                }
+                }.bind(this);
 
             }.bind(this),
             onClickOpen = function() {
