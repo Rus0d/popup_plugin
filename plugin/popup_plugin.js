@@ -255,7 +255,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 setActualModel();
 
-            }.bind(this),                                                               /* Сохраняем массив с модалеами в локальное хранилище */
+            }.bind(this),                                                               /* Сохраняем массив с модалками в локальное хранилище */
 
             setActualModel = function() {
 
@@ -345,9 +345,8 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
         this.modelItem = modelItem;
 
-        var popupActivity = false,
-            cookiePeriod = false,
-            onOutEvent = false;
+        var popupActivity = false,                                                                                      /* Флаги активности попапа, выставляются чекерами */
+            cookiePeriod = false;
 
         var DOMinsert = function() {
 
@@ -365,7 +364,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 script.id = "popupIdJs-" + this.modelItem.id;
                 bodyEl.appendChild(script);
 
-            }.bind(this),
+            }.bind(this),                                                                    /* Работа с ДОМ */
             DOMrefresh = function() {
 
                 var popup = document.getElementById("popupId-" + this.modelItem.id),
@@ -399,6 +398,46 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
             }.bind(this),
 
+            openWindowParametersTracking = function() {
+
+                if ( typeof(dataLayer) != 'undefined' ) {
+
+                    dataLayer.push({
+                        'event': this.modelItem.event,
+                        'eventCategory': this.modelItem.event_category,
+                        'eventAction': 'Window Opened'
+                    });
+
+                }
+
+            }.bind(this),
+            closeWindowParametersTracking = function() {
+
+                if ( typeof(dataLayer) != 'undefined' ) {
+
+                    dataLayer.push({
+                        'event': this.modelItem.event,
+                        'eventCategory': this.modelItem.event_category,
+                        'eventAction': 'Window Close'
+                    });
+
+                }
+
+            }.bind(this),
+            closeOuterSpaceParametersTracking = function() {
+
+                if ( typeof(dataLayer) != 'undefined' ) {
+
+                    dataLayer.push({
+                        'event': this.modelItem.event,
+                        'eventCategory': this.modelItem.event_category,
+                        'eventAction': 'Window Close OuterSpace'
+                    });
+
+                }
+
+            }.bind(this),
+
             dayCallPeriodChecker = function() {
 
                 var startPeriod = this.modelItem.start_time,
@@ -412,7 +451,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     popupActivity = false;
                 }
 
-            }.bind(this),
+            }.bind(this),                                                         /* Проверка периода вызова в сутки */
             cookiePeriodChecker = function() {
 
                 var shownDay = JSON.parse(localStorage.getItem("coockieTime" + this.modelItem.id)) || 0,
@@ -425,7 +464,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     cookiePeriod = false;
                 }
 
-            }.bind(this),
+            }.bind(this),                                                          /* Проверка времени cookie */
             cookiePeriodSetter = function() {
 
                 var now = new Date(),
@@ -433,70 +472,31 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 localStorage.setItem("coockieTime" + this.modelItem.id, shownDay);
 
-            }.bind(this),
-            outChecker = function() {
-
-                var onEventState = JSON.parse(localStorage.getItem("onEventState" + this.modelItem.id)) || 0,
-                    timeDuration = 86400000,
-                    now = new Date();
-
-                if( (now.getTime() - timeDuration) >= onEventState ) {
-                    onOutEvent = true;
-                } else {
-                    onOutEvent = false;
-                }
-
-            }.bind(this),
-            outSetter = function() {
-
-                var now = new Date(),
-                    onEventState = JSON.stringify( now.getTime() );
-
-                localStorage.setItem("onEventState" + this.modelItem.id, onEventState);
-
-            }.bind(this),
+            }.bind(this),                                                           /* Устанавливаем время cookie */
 
             robotoShow = function() {
 
                 dayCallPeriodChecker();
                 cookiePeriodChecker();
 
-                cookiePeriodSetter();
-
                 if ( popupActivity && cookiePeriod ) {
-                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
+                    cookiePeriodSetter();
+
+                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
                     DOMelement.classList.remove("popup-plugin-hide");
                 }
 
-            }.bind(this),
+            }.bind(this),                                                                   /* Метод показать попап учитывая время cookie, периода вызова в сутки */
             manualShow = function() {
 
                 cookiePeriodSetter();
 
-                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+                var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
-                    DOMelement.classList.remove("popup-plugin-hide");
+                DOMelement.classList.remove("popup-plugin-hide");
 
-            }.bind(this),
-            outShow = function() {
-
-                dayCallPeriodChecker();
-                cookiePeriodChecker();
-                outChecker();
-
-                cookiePeriodSetter();
-                outSetter();
-
-
-
-                if ( popupActivity && cookiePeriod && onOutEvent ) {
-                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
-
-                    DOMelement.classList.remove("popup-plugin-hide");
-                }
-
-            }.bind(this),
+            }.bind(this),                                                                   /* Метод показать попап */
             hide = function() {
 
                 var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
@@ -504,11 +504,15 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 DOMelement.classList.add("popup-plugin-hide");
 
 
-            }.bind(this),
+            }.bind(this),                                                                         /* Метод прячет попап */
 
             delayedShow = function() {
 
-                setTimeout(robotoShow , this.modelItem.delay * 1000);
+                if( this.modelItem.delay >= 0 ) {
+
+                    setTimeout(robotoShow , this.modelItem.delay * 1000);
+
+                }
 
             }.bind(this),
             onClickClose = function() {
@@ -519,8 +523,13 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     var closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
                     e.stopPropagation();
 
-                    if ( e.target === popup || e.target === closeBtn ) {
+                    if ( e.target === closeBtn ) {
                         hide();
+                        closeWindowParametersTracking();
+                    }
+                    else if ( e.target === popup ) {
+                        hide();
+                        closeOuterSpaceParametersTracking();
                     }
 
                 }.bind(this);
@@ -536,6 +545,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         item.onclick = function(e) {
                             e.stopPropagation();
                             manualShow();
+                            openWindowParametersTracking();
                         };
                     });
 
@@ -568,11 +578,13 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         scrollElements.forEach( function( item ){
 
                             if ( (direction === 'DOWN') && ( item.offsetTop <= (scrolled + height) ) && ( (scrolled + height) <= (item.offsetTop + item.offsetHeight) ) && ( !opened ) ) {
-                                manualShow();
+                                robotoShow();
+                                openWindowParametersTracking();
                                 opened = true;
                             }
                             else if ( (direction === 'UP') && ( (item.offsetHeight + item.offsetTop) >= scrolled ) && ( scrolled >= item.offsetTop ) && ( !opened ) ) {
-                                manualShow();
+                                robotoShow();
+                                openWindowParametersTracking();
                                 opened = true;
                             }
                             else if ( (direction === 'DOWN') && ( (scrolled) > (item.offsetTop + item.offsetHeight) ) && ( opened ) ) {
@@ -599,7 +611,8 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         e.stopPropagation();
 
                         if (e.clientY < 0) {
-                            outShow();
+                            robotoShow();
+                            openWindowParametersTracking();
                         }
                     };
                 }
