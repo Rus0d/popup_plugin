@@ -482,6 +482,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 if ( popupActivity && cookiePeriod ) {
 
                     cookiePeriodSetter();
+                    openWindowParametersTracking();
 
                     var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
                     DOMelement.classList.remove("popup-plugin-hide");
@@ -491,6 +492,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             manualShow = function() {
 
                 cookiePeriodSetter();
+                openWindowParametersTracking();
 
                 var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
@@ -545,7 +547,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         item.onclick = function(e) {
                             e.stopPropagation();
                             manualShow();
-                            openWindowParametersTracking();
                         };
                     });
 
@@ -579,12 +580,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                             if ( (direction === 'DOWN') && ( item.offsetTop <= (scrolled + height) ) && ( (scrolled + height) <= (item.offsetTop + item.offsetHeight) ) && ( !opened ) ) {
                                 robotoShow();
-                                openWindowParametersTracking();
                                 opened = true;
                             }
                             else if ( (direction === 'UP') && ( (item.offsetHeight + item.offsetTop) >= scrolled ) && ( scrolled >= item.offsetTop ) && ( !opened ) ) {
                                 robotoShow();
-                                openWindowParametersTracking();
                                 opened = true;
                             }
                             else if ( (direction === 'DOWN') && ( (scrolled) > (item.offsetTop + item.offsetHeight) ) && ( opened ) ) {
@@ -612,7 +611,6 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                         if (e.clientY < 0) {
                             robotoShow();
-                            openWindowParametersTracking();
                         }
                     };
                 }
