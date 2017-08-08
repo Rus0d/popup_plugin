@@ -68,7 +68,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         xhrInfo.onreadystatechange = function() {
                             if (xhrInfo.readyState != 4) return;
                             if (xhrInfo.status != 200) {
-                                console.log(xhrInfo.status + ': ' + xhrInfo.statusText);
+                                //console.log(xhrInfo.status + ': ' + xhrInfo.statusText);
                                 compareInfo();
                             } else {
                                 this.info = JSON.parse(xhrInfo.responseText) || [{}];
@@ -180,7 +180,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     xhrModals.onreadystatechange = function() {
                         if (xhrModals.readyState != 4) return;
                         if (xhrModals.status != 200) {
-                            console.log(xhrModals.status + ': ' + xhrModals.statusText);
+                            //console.log(xhrModals.status + ': ' + xhrModals.statusText);
                             cleanModals();
                         }
                         else {
@@ -301,9 +301,27 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 actualModel.forEach(function( actItem, number ) {
 
-                    if( !modalsArray[number] ) {
-                        modalsArray[number] = new Modal(actItem);
+                    var overlapCheck = false;
+
+                    if( modalsArray.length > 0 ) {
+
+                        modalsArray.forEach(function( modalsItem, modalsNumber ) {
+
+                            if( actItem.id === modalsItem.modelItem.id ) {
+                                overlapCheck = true;
+                            }
+
+                        }.bind(this));
+
                     }
+
+                    if( !overlapCheck ){
+                        modalsArray.push(new Modal(actItem));
+                    }
+
+                    /*if( !modalsArray[number] ) {
+                        modalsArray[number] = new Modal(actItem);
+                    }*/
 
                 }.bind(this));
 
@@ -363,9 +381,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 var script = document.createElement('script');
                 if(this.modelItem.js) {
                     script.src = "https://my.citrus.ua" + this.modelItem.js;
+                    script.async = false;
+                    script.id = "popupIdJs-" + this.modelItem.id;
                 }
-                script.async = false;
-                script.id = "popupIdJs-" + this.modelItem.id;
                 if(this.modelItem.js) {
                     bodyEl.appendChild(script);
                 }
@@ -382,18 +400,23 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 popup.innerHTML = this.modelItem.html;
 
-                css.parentNode.removeChild(css);
+                if(css != null) {
+                    css.parentNode.removeChild(css);
+                }
 
                 if (this.modelItem.css) {
                     headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href='https://my.citrus.ua" + this.modelItem.css + "' rel='stylesheet' type='text/css'>");
                 }
 
-                js.parentNode.removeChild(js);
+                if(js != null) {
+                    js.parentNode.removeChild(js);
+                }
                 if(this.modelItem.js) {
                     script.src = "https://my.citrus.ua" + this.modelItem.js;
+                    script.async = true;
+                    script.id = "popupIdJs-" + this.modelItem.id;
                 }
-                script.async = true;
-                script.id = "popupIdJs-" + this.modelItem.id;
+
                 if(this.modelItem.js) {
                     bodyEl.appendChild(script);
                 }
@@ -405,9 +428,15 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         css = document.getElementById("popupIdCss-" + this.modelItem.id),
                         js = document.getElementById("popupIdJs-" + this.modelItem.id);
 
-                    popup.parentNode.removeChild(popup);
-                    css.parentNode.removeChild(css);
-                    js.parentNode.removeChild(js);
+                    if(popup != null) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                    if(css != null) {
+                        css.parentNode.removeChild(css);
+                    }
+                    if(js != null) {
+                        js.parentNode.removeChild(js);
+                    }
 
             }.bind(this),
 
@@ -498,7 +527,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     openWindowParametersTracking();
 
                     var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
-                    DOMelement.classList.remove("popup-plugin-hide");
+
+                    if( DOMelement != null ) {
+                        DOMelement.classList.remove("popup-plugin-hide");
+                    }
                 }
 
             }.bind(this),                                                                   /* Метод показать попап учитывая время cookie, периода вызова в сутки */
@@ -509,15 +541,18 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
-                DOMelement.classList.remove("popup-plugin-hide");
+                if( DOMelement != null ) {
+                    DOMelement.classList.remove("popup-plugin-hide");
+                }
 
             }.bind(this),                                                                   /* Метод показать попап */
             hide = function() {
 
                 var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
 
-                DOMelement.classList.add("popup-plugin-hide");
-
+                if( DOMelement != null ) {
+                    DOMelement.classList.add("popup-plugin-hide");
+                }
 
             }.bind(this),                                                                         /* Метод прячет попап */
 
@@ -534,20 +569,22 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 var popup = document.getElementById('popupId-' + this.modelItem.id);
 
-                popup.onclick = function(e) {
-                    var closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
-                    e.stopPropagation();
+                if( popup != null ) {
+                    popup.onclick = function (e) {
+                        var closeBtn = document.querySelector('#popupId-' + this.modelItem.id + ' .popup-close');
+                        e.stopPropagation();
 
-                    if ( e.target === closeBtn ) {
-                        hide();
-                        closeWindowParametersTracking();
-                    }
-                    else if ( e.target === popup ) {
-                        hide();
-                        closeOuterSpaceParametersTracking();
-                    }
+                        if (e.target === closeBtn) {
+                            hide();
+                            closeWindowParametersTracking();
+                        }
+                        else if (e.target === popup) {
+                            hide();
+                            closeOuterSpaceParametersTracking();
+                        }
 
-                }.bind(this);
+                    }.bind(this);
+                }
 
             }.bind(this),
             onClickOpen = function() {
