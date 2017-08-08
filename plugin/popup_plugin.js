@@ -356,13 +356,19 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 var headEl = document.querySelector('head');
 
-                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=https://my.citrus.ua" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                if (this.modelItem.css) {
+                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href=https://my.citrus.ua" + this.modelItem.css + " rel='stylesheet' type='text/css'>");
+                }
 
                 var script = document.createElement('script');
-                script.src = "https://my.citrus.ua" + this.modelItem.js;
+                if(this.modelItem.js) {
+                    script.src = "https://my.citrus.ua" + this.modelItem.js;
+                }
                 script.async = false;
                 script.id = "popupIdJs-" + this.modelItem.id;
-                bodyEl.appendChild(script);
+                if(this.modelItem.js) {
+                    bodyEl.appendChild(script);
+                }
 
             }.bind(this),                                                                    /* Работа с ДОМ */
             DOMrefresh = function() {
@@ -377,13 +383,20 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 popup.innerHTML = this.modelItem.html;
 
                 css.parentNode.removeChild(css);
-                headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href='https://my.citrus.ua" + this.modelItem.css + "' rel='stylesheet' type='text/css'>");
+
+                if (this.modelItem.css) {
+                    headEl.insertAdjacentHTML("beforeEnd", "<link id='popupIdCss-" + this.modelItem.id + "' href='https://my.citrus.ua" + this.modelItem.css + "' rel='stylesheet' type='text/css'>");
+                }
 
                 js.parentNode.removeChild(js);
-                script.src = "https://my.citrus.ua" + this.modelItem.js;
+                if(this.modelItem.js) {
+                    script.src = "https://my.citrus.ua" + this.modelItem.js;
+                }
                 script.async = true;
                 script.id = "popupIdJs-" + this.modelItem.id;
-                bodyEl.appendChild(script);
+                if(this.modelItem.js) {
+                    bodyEl.appendChild(script);
+                }
 
             }.bind(this),
             DOMdelete = function() {
