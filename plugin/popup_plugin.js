@@ -1,5 +1,8 @@
 // Добавляет поддержку insertAdjacent* в Firefox
 
+//localStorage.setItem("popup-show-restriction-" + 21, "y"); -- добавить если не надо чтоб модалка показывалась
+// данному пользователю
+
 if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentElement) {
     HTMLElement.prototype.insertAdjacentElement = function(where, parsedNode) {
         switch (where) {
@@ -346,7 +349,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
         this.modelItem = modelItem;
 
         var popupActivity = false,                                                                                      /* Флаги активности попапа, выставляются чекерами */
-            cookiePeriod = false;
+            cookiePeriod = false,
+            popupRestriction = false;
+
 
         var DOMinsert = function() {
 
@@ -465,6 +470,17 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }
 
             }.bind(this),                                                          /* Проверка времени cookie */
+            restricitionChecker = function() {
+
+                var restrictionValue = localStorage.getItem(this.modelItem.show_restriction_name) || 0;
+
+                if ( restrictionValue === this.modelItem.show_restriction_value ) {
+                    popupRestriction = true;
+                } else {
+                    popupRestriction = false;
+                }
+
+            }.bind(this),
             cookiePeriodSetter = function() {
 
                 var now = new Date(),
@@ -478,8 +494,9 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 dayCallPeriodChecker();
                 cookiePeriodChecker();
+                restricitionChecker();
 
-                if ( popupActivity && cookiePeriod ) {
+                if ( popupActivity && cookiePeriod && !popupRestriction ) {
 
                     cookiePeriodSetter();
                     openWindowParametersTracking();
@@ -493,10 +510,15 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
                 cookiePeriodSetter();
                 openWindowParametersTracking();
+                restricitionChecker();
 
-                var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+                if ( !popupRestriction ) {
 
-                DOMelement.classList.remove("popup-plugin-hide");
+                    var DOMelement = document.getElementById('popupId-' + this.modelItem.id);
+
+                    DOMelement.classList.remove("popup-plugin-hide");
+
+                }
 
             }.bind(this),                                                                   /* Метод показать попап */
             hide = function() {
